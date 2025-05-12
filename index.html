@@ -1,21 +1,361 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Global Random Number Generator</title>
-  <link rel="stylesheet" href="style.css"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Monitor | ComDotKKH</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --comdotkkh: #6a11cb;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+        
+        /* Animated background elements */
+        .bg-circle {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.15;
+            z-index: -1;
+            animation: float 15s infinite ease-in-out;
+        }
+        
+        .circle-1 {
+            width: 300px;
+            height: 300px;
+            background: #ff00aa;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .circle-2 {
+            width: 400px;
+            height: 400px;
+            background: #00ffaa;
+            top: 60%;
+            left: 80%;
+            animation-delay: 3s;
+        }
+        
+        .circle-3 {
+            width: 250px;
+            height: 250px;
+            background: #aa00ff;
+            top: 30%;
+            left: 70%;
+            animation-delay: 6s;
+        }
+        
+        .circle-4 {
+            width: 350px;
+            height: 350px;
+            background: #ffaa00;
+            top: 70%;
+            left: 20%;
+            animation-delay: 9s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(20px, 30px) rotate(5deg);
+            }
+            50% {
+                transform: translate(-15px, 20px) rotate(-5deg);
+            }
+            75% {
+                transform: translate(10px, -15px) rotate(3deg);
+            }
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .brand-logo svg {
+            width: 30px;
+            height: 30px;
+        }
+        
+        .brand-name {
+            font-weight: 700;
+            font-size: 24px;
+            background: linear-gradient(90deg, var(--comdotkkh) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .ip-display {
+            background: rgba(248, 249, 250, 0.7);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .ip-item {
+            margin-bottom: 15px;
+        }
+        
+        .ip-label {
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .ip-value {
+            font-family: monospace;
+            word-break: break-all;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #eee;
+            min-height: 20px;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(90deg, var(--comdotkkh) 0%, var(--primary) 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 20px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            font-size: 16px;
+            transition: all 0.3s;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
+        }
+        
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(106, 17, 203, 0.4);
+        }
+        
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+        
+        .refresh-btn.loading {
+            opacity: 0.8;
+            pointer-events: none;
+        }
+        
+        .refresh-btn.loading::after {
+            content: "";
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            width: 16px;
+            height: 16px;
+            margin-top: -8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            background: rgba(255,255,255,0.7);
+            border-radius: 50%;
+            z-index: -1;
+            animation: float-particle linear infinite;
+        }
+        
+        @keyframes float-particle {
+            to {
+                transform: translateY(-100vh);
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Global Random Number Generator</h1>
-    <select id="countrySelect"></select>
-    <button onclick="generateNumber()">Generate Number</button>
-    <div id="numberDisplay" class="number"></div>
-    <a href="1000000_random_numbers.txt" download class="download-link">Download 1 Million Numbers</a>
-  </div>
-  <script src="countries.js"></script>
-  <script src="script.js"></script>
+    <!-- Animated background circles -->
+    <div class="bg-circle circle-1"></div>
+    <div class="bg-circle circle-2"></div>
+    <div class="bg-circle circle-3"></div>
+    <div class="bg-circle circle-4"></div>
+    
+    <!-- Floating particles will be added by JS -->
+    
+    <div class="container">
+        <div class="brand-header">
+            <div class="brand-logo">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2Z" fill="url(#comdotkkh-gradient)"/>
+                    <path d="M12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6Z" fill="white"/>
+                    <defs>
+                        <linearGradient id="comdotkkh-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#6a11cb"/>
+                            <stop offset="100%" stop-color="#4361ee"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <div class="brand-name">ComDotKKH</div>
+        </div>
+        
+        <div class="ip-display">
+            <div class="ip-item">
+                <div class="ip-label">Public IPv4 Address</div>
+                <div class="ip-value" id="public-ipv4">Detecting...</div>
+            </div>
+            
+            <div class="ip-item">
+                <div class="ip-label">Local IPv4 Address</div>
+                <div class="ip-value" id="local-ipv4">Detecting...</div>
+            </div>
+            
+            <div class="ip-item">
+                <div class="ip-label">IPv6 Address</div>
+                <div class="ip-value" id="ipv6">Detecting...</div>
+            </div>
+        </div>
+        
+        <button class="refresh-btn" id="refreshBtn" onclick="fetchIPs()">Refresh IPs</button>
+    </div>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const colors = ['rgba(255,0,170,0.3)', 'rgba(0,255,170,0.3)', 'rgba(170,0,255,0.3)', 'rgba(255,170,0,0.3)'];
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random properties
+                const size = Math.random() * 10 + 5;
+                const posX = Math.random() * window.innerWidth;
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 10;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}px`;
+                particle.style.bottom = `-${size}px`;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.background = color;
+                
+                document.body.appendChild(particle);
+            }
+        }
+        
+        // Track if we're currently refreshing
+        let isRefreshing = false;
+        
+        async function getPublicIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                return "Not available";
+            }
+        }
+
+        async function getLocalIPs() {
+            return new Promise((resolve) => {
+                window.RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+                const pc = new RTCPeerConnection({iceServers:[]});
+                const noop = () => {};
+                const localIPs = {};
+                
+                pc.createDataChannel("");
+                pc.createOffer().then(sdp => pc.setLocalDescription(sdp, noop, noop));
+                pc.onicecandidate = (ice) => {
+                    if (!ice || !ice.candidate || !ice.candidate.candidate) {
+                        resolve(localIPs);
+                        return;
+                    }
+                    const ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/g;
+                    const ipMatches = ice.candidate.candidate.match(ipRegex);
+                    if (ipMatches) ipMatches.forEach(ip => localIPs[ip] = true);
+                };
+                
+                // Timeout if detection takes too long
+                setTimeout(() => resolve(localIPs), 1000);
+            });
+        }
+
+        async function fetchIPs() {
+            if (isRefreshing) return;
+            isRefreshing = true;
+            
+            const btn = document.getElementById('refreshBtn');
+            btn.classList.add('loading');
+            btn.textContent = "Refreshing...";
+            
+            // Clear previous values
+            document.getElementById('public-ipv4').textContent = "Detecting...";
+            document.getElementById('local-ipv4').textContent = "Detecting...";
+            document.getElementById('ipv6').textContent = "Detecting...";
+            
+            try {
+                // Get public IP (await this first as it's slower)
+                const publicIPv4 = await getPublicIP();
+                document.getElementById('public-ipv4').textContent = publicIPv4;
+                
+                // Get local IPs in parallel
+                const localIPs = await getLocalIPs();
+                const localIPv4 = Object.keys(localIPs).find(ip => ip.includes('.'));
+                const ipv6 = Object.keys(localIPs).find(ip => ip.includes(':'));
+                
+                document.getElementById('local-ipv4').textContent = localIPv4 || "Not available";
+                document.getElementById('ipv6').textContent = ipv6 || "Not detected";
+                
+            } catch (error) {
+                document.getElementById('public-ipv4').textContent = "Error detecting";
+                document.getElementById('local-ipv4').textContent = "Error detecting";
+                document.getElementById('ipv6').textContent = "Error detecting";
+            } finally {
+                isRefreshing = false;
+                btn.classList.remove('loading');
+                btn.textContent = "Refresh IPs";
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            fetchIPs();
+        });
+    </script>
 </body>
 </html>
